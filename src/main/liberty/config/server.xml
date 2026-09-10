@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="sample-jee8">
+
+	<!-- Java EE 8 (javax.*) features - Open Liberty runs these on JDK 21 -->
+	<featureManager>
+		<feature>jaxrs-2.1</feature>
+		<feature>cdi-2.0</feature>
+	</featureManager>
+
+	<httpEndpoint id="defaultHttpEndpoint" host="*" httpPort="8080" httpsPort="9443" />
+
+	<!-- The Dockerfile drops the WAR into the server's dropins/ folder for
+	     auto-deploy; context root /sample-jee8 comes from WEB-INF/ibm-web-ext.xml -->
+
+</server>
