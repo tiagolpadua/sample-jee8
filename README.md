@@ -1,5 +1,5 @@
-# sample-jee7
+# sample-jee8
 
-http://localhost:8080/sample-jee7
+http://localhost:8080/sample-jee8
 
-http://localhost:8080/sample-jee7/api/test
+http://localhost:8080/sample-jee8/api/test

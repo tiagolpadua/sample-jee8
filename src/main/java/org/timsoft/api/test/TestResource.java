@@ -8,10 +8,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 // WildFly
-// http://localhost:8080/sample-jee7/api/test
+// http://localhost:8080/sample-jee8/api/test
 
 // Weblogic
-// http://localhost:7001/sample-jee7/api/test
+// http://localhost:7001/sample-jee8/api/test
 
 @RequestScoped
 @Path("test")

@@ -3,5 +3,5 @@
 <!DOCTYPE jboss-web PUBLIC "-//JBoss//DTD Web Application 2.4//EN"
         "http://www.jboss.org/j2ee/dtd/jboss-web_5_0.dtd">
 <jboss-web>
-	<context-root>/sample-jee7</context-root>
+	<context-root>/sample-jee8</context-root>
 </jboss-web>
