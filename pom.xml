@@ -12,6 +12,12 @@
 		<maven.compiler.release>21</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
+
+		<swagger.version>2.2.55</swagger.version>
+		<swagger-ui.version>5.32.14</swagger-ui.version>
+
+		<spotless.version>3.10.2</spotless.version>
+		<google-java-format.version>1.36.1</google-java-format.version>
 	</properties>
 
 	<dependencies>
@@ -21,5 +27,50 @@
 			<version>8.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- OpenAPI 3 spec generation from JAX-RS annotations (javax build) -->
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-jaxrs2</artifactId>
+			<version>${swagger.version}</version>
+		</dependency>
+
+		<!-- Swagger UI static assets, served from META-INF/resources/webjars/... -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>swagger-ui</artifactId>
+			<version>${swagger-ui.version}</version>
+		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Code formatting gate: `spotless:check` runs in process-sources,
+			     so `mvn compile/package/install` fails on badly formatted code.
+			     Run `mvn spotless:apply` to fix formatting. -->
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<configuration>
+					<java>
+						<googleJavaFormat>
+							<version>${google-java-format.version}</version>
+						</googleJavaFormat>
+						<removeUnusedImports />
+						<formatAnnotations />
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<id>spotless-check</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

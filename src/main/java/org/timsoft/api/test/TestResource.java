@@ -1,5 +1,7 @@
 package org.timsoft.api.test;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,9 +15,13 @@ import javax.ws.rs.core.Response;
 @RequestScoped
 @Path("test")
 @Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "test")
 public class TestResource {
-	@GET
-	public Response test() {
-		return Response.ok("Test OK").build();
-	}
+  @GET
+  @Operation(
+      summary = "Deployment sanity check",
+      description = "Returns \"Test OK\" when the app is up.")
+  public Response test() {
+    return Response.ok("Test OK").build();
+  }
 }
