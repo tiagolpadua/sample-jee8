@@ -18,6 +18,9 @@
 
 		<spotless.version>3.10.2</spotless.version>
 		<google-java-format.version>1.36.1</google-java-format.version>
+
+		<lombok.version>1.18.48</lombok.version>
+		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -26,6 +29,15 @@
 			<artifactId>javaee-api</artifactId>
 			<version>8.0.1</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- Compile-time only: not bundled in the WAR, not exported transitively -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- OpenAPI 3 spec generation from JAX-RS annotations (javax build) -->
@@ -45,6 +57,23 @@
 
 	<build>
 		<plugins>
+			<!-- Run Lombok as an explicit annotation processor (not off the
+			     classpath), so it keeps working on newer JDKs. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
 			<!-- Code formatting gate: `spotless:check` runs in process-sources,
 			     so `mvn compile/package/install` fails on badly formatted code.
 			     Run `mvn spotless:apply` to fix formatting. -->
