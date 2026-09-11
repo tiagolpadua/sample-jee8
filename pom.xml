@@ -21,6 +21,12 @@
 
 		<lombok.version>1.18.48</lombok.version>
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+
+		<h2.version>2.3.232</h2.version>
+		<!-- 2.7.x is the last javax.persistence line; only used to run JPA in tests -->
+		<eclipselink.version>2.7.15</eclipselink.version>
+		<junit.version>5.11.4</junit.version>
+		<mockito.version>5.14.2</mockito.version>
 	</properties>
 
 	<dependencies>
@@ -52,6 +58,48 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>swagger-ui</artifactId>
 			<version>${swagger-ui.version}</version>
+		</dependency>
+
+		<!-- H2 JDBC driver - bundled in the WAR (WebLogic has no in-memory DB we want) -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${h2.version}</version>
+		</dependency>
+
+		<!-- ===== test only ===== -->
+
+		<!-- JPA provider for tests only; WebLogic supplies EclipseLink at runtime.
+		     Exclude its bundled javax.persistence API - javaee-api already provides it. -->
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>${eclipselink.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>jakarta.persistence</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>javax.persistence</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
