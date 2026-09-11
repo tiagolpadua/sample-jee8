@@ -55,6 +55,7 @@ book/        entity, repository, service, JAX-RS resource, mapper, DTOs
 error/       ApiError + custom exceptions + JAX-RS ExceptionMappers
 persistence/ EntityManager producer + @Tx interceptor (RESOURCE_LOCAL, app-managed)
 ping/        PingResource sanity check
+diagnostics/ DiagnosticsResource — GET api/debug/json-provider (which MessageBodyWriter Jersey picked)
 
 openapi-configuration.yaml   scopes the Swagger scan to org.timsoft.api (see CLAUDE.md)
 ```

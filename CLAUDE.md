@@ -35,6 +35,7 @@ The code uses the pre-Jakarta `javax.*` namespace throughout (`javax.ws.rs.*`,
 | `GET` | `/sample-jee8/api/ping` | `PingResource` → `"pong"` |
 | `GET` | `/sample-jee8/api/openapi.json` / `.yaml` | OpenAPI 3 doc (scan scoped — see below) |
 | `GET` | `/sample-jee8/api-docs.html` | Swagger UI |
+| `GET` | `/sample-jee8/api/debug/json-provider` | which JSON `MessageBodyWriter`/`Reader` Jersey actually selected (ops diagnostic, hidden from the OpenAPI doc) |
 | `POST` | `/sample-jee8/api/books` | create → `201` + `Location`; `409` on duplicate ISBN |
 | `GET` | `/sample-jee8/api/books` | paged list; query `title`, `author`, `genre`, `page`, `size`, `sort=field,asc\|desc` |
 | `GET` | `/sample-jee8/api/books/{id}` | `200` / `404` |
@@ -69,8 +70,9 @@ override, which per JAX-RS 2.3.2 means the container scans this WAR's own
 `WEB-INF/classes`/`WEB-INF/lib` for `@Path`/`@Provider` classes and wires them up — that's every
 resource, every `ExceptionMapper`, and swagger-jaxrs2's `OpenApiResource`. This is the container's
 own deployment-scoped discovery, unrelated to (and far narrower than) the ClassGraph scan above.
-**Not yet confirmed against a live WebLogic deploy** — if a resource or mapper doesn't get picked
-up, override `getClasses()` again and list the missing one(s) explicitly.
+**Confirmed on a live WebLogic deploy**: a throwaway diagnostic resource, never listed anywhere,
+was reachable — proof the container found and registered it on its own. If a future resource or
+mapper doesn't get picked up, override `getClasses()` again and list the missing one(s) explicitly.
 
 Other notes:
 
@@ -81,6 +83,37 @@ Other notes:
   explicit scope.
 - **Artifact name vs. context root** — WAR is `SampleJEE8-*`, context root is `/sample-jee8` (set
   in `WEB-INF/weblogic.xml`). Change one → update the other + `README.md`.
+
+## JSON serialization
+
+**Jackson is forced on, explicitly** — `json.AppJacksonJsonProvider` (`@Provider`, extends
+`com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider`) + `json.AppObjectMapperProvider`
+(`@Provider ContextResolver<ObjectMapper>`, registers `JavaTimeModule` and disables
+`WRITE_DATES_AS_TIMESTAMPS` so `LocalDateTime` renders as ISO-8601, not a numeric array — verified
+end to end offline, both directions: without the `ContextResolver` wired, Jackson throws
+`InvalidDefinitionException` on `LocalDateTime`; with it, output matches the OpenAPI schema).
+
+Why this exists: WebLogic 14.1.2's Jersey has Jackson, MOXy, and JSON-B all on its classpath at
+once and, **by default, picks JSON-B (Yasson 1.0.3)** — confirmed live via
+`GET /sample-jee8/api/debug/json-provider` (`diagnostics.DiagnosticsResource`, kept permanently,
+`@Hidden` from the OpenAPI doc and out of the JaCoCo gate — re-run this after any WebLogic/domain
+change, since nothing pins the provider besides this app's own config). JSON-B has real behavioral
+differences from Jackson worth knowing even though it's no longer in the loop here: it **omits
+`null` fields by default** (Jackson includes them as `"field": null`), which is how the API used to
+render `genre`/`pages`/etc. before this change.
+
+How Jackson wins now: `ApplicationConfig.getProperties()` sets
+`jersey.config.disableJsonBinding` and `jersey.config.disableMoxyJson` (exact property names
+confirmed against the actual `jersey-media-json-binding` / `jersey-media-moxy` classes WebLogic
+bundles) — this is a separate JAX-RS hook from `getClasses()`, so it doesn't disturb the
+container-scoped provider/resource auto-discovery described above. On top of that,
+`AppJacksonJsonProvider` being an `@Provider` class the container discovers in this WAR outranks
+whatever Jersey auto-discovers on its own, so it would likely have won anyway — the property-based
+disable removes any doubt.
+
+The Jackson dependency (`com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider`) used to only be
+a transitive dependency of `swagger-jaxrs2`, present but not load-bearing; it's now pinned
+explicitly in `pom.xml` since the API's actual JSON rendering depends on it.
 
 ## Persistence
 

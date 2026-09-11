@@ -33,6 +33,11 @@
 		<jersey.version>2.46</jersey.version>
 
 		<slf4j.version>2.0.19</slf4j.version>
+		<!-- Jackson was only ever on the classpath transitively, via swagger-jaxrs2. Now that
+		     org.timsoft.api.json uses it directly (databind, datatype-jsr310, jaxrs-json-provider),
+		     it's a real direct dependency - pin it as one instead of relying on what Swagger happens
+		     to pull in. -->
+		<jackson.version>2.22.1</jackson.version>
 	</properties>
 
 	<dependencies>
@@ -71,6 +76,25 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
+		</dependency>
+
+		<!-- Direct Jackson dependencies for org.timsoft.api.json: registers Jackson as the
+		     JAX-RS JSON provider so it wins over WebLogic's default JSON-B/MOXy selection,
+		     with LocalDateTime support - see CLAUDE.md. -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 
 		<!-- SLF4J facade (used via Lombok @Slf4j) + a JUL binding, so log calls still land
@@ -164,6 +188,7 @@
 						<exclude>org/timsoft/api/persistence/TransactionalInterceptor.*</exclude>
 						<exclude>org/timsoft/api/persistence/Tx.*</exclude>
 						<exclude>org/timsoft/api/ping/**</exclude>
+						<exclude>org/timsoft/api/diagnostics/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
