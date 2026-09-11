@@ -7,10 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-// WildFly
-// http://localhost:8080/sample-jee8/api/test
-
-// Weblogic
+// WebLogic
 // http://localhost:7001/sample-jee8/api/test
 
 @RequestScoped
