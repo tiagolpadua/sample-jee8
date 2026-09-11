@@ -27,6 +27,10 @@
 		<eclipselink.version>2.7.15</eclipselink.version>
 		<junit.version>5.11.4</junit.version>
 		<mockito.version>5.14.2</mockito.version>
+		<jacoco.version>0.8.12</jacoco.version>
+		<maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+		<!-- last javax.ws.rs line of Jersey; test-only, to get a JAX-RS RuntimeDelegate -->
+		<jersey.version>2.46</jersey.version>
 	</properties>
 
 	<dependencies>
@@ -101,10 +105,91 @@
 			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Provides a javax.ws.rs RuntimeDelegate so Response/UriBuilder work in
+		     plain unit tests (no container). Matches the Jersey WebLogic ships. -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- Point java.util.logging at the test config (quiets the ExceptionMapper
+			     stack traces that the mapper tests trigger on purpose). -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<systemPropertyVariables>
+						<java.util.logging.config.file>${project.basedir}/src/test/resources/logging.properties</java.util.logging.config.file>
+					</systemPropertyVariables>
+					<!-- @{argLine} keeps JaCoCo's agent; the flag silences Mockito/ByteBuddy's
+					     "Java agent loaded dynamically" warning on JDK 21. -->
+					<argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
+				</configuration>
+			</plugin>
+
+			<!-- Test coverage: `jacoco:check` runs in `verify` and fails the build
+			     below 70% line coverage. HTML report at target/site/jacoco/.
+			     Lombok-generated members are skipped (lombok.addLombokGeneratedAnnotation). -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<configuration>
+					<excludes>
+						<!-- Framework glue: not unit-testable without a container -->
+						<exclude>org/timsoft/api/ApplicationConfig.class</exclude>
+						<exclude>org/timsoft/api/openapi/**</exclude>
+						<exclude>org/timsoft/api/persistence/EntityManagerProducer.*</exclude>
+						<exclude>org/timsoft/api/persistence/TransactionalInterceptor.*</exclude>
+						<exclude>org/timsoft/api/persistence/Tx.*</exclude>
+						<exclude>org/timsoft/api/test/**</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Run Lombok as an explicit annotation processor (not off the
 			     classpath), so it keeps working on newer JDKs. -->
 			<plugin>

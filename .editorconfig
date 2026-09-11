@@ -1,0 +1,27 @@
+# EditorConfig — https://editorconfig.org
+# Aligned with the Spotless / google-java-format setup in pom.xml.
+#
+# Note: `end_of_line` is deliberately NOT set for Java. Spotless resolves line
+# endings from Git (`core.autocrlf` / .gitattributes) and pinning them here would
+# make editors fight `spotless:check`.
+root = true
+
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# google-java-format: 2-space indent, 4-space continuation, 100-column lines
+[*.java]
+indent_style = space
+indent_size = 2
+continuation_indent_size = 4
+max_line_length = 100
+
+# Markdown: two trailing spaces are a hard line break
+[*.md]
+trim_trailing_whitespace = false
+
+# Windows launcher must stay CRLF
+[*.cmd]
+end_of_line = crlf

@@ -29,7 +29,8 @@
       <property name="eclipselink.deploy-on-startup" value="true"/>
 
       <property name="eclipselink.weaving" value="false"/>
-      <property name="eclipselink.logging.level" value="WARNING"/>
+      <!-- SEVERE (not WARNING) so tests don't print the benign deprecated-password notice -->
+      <property name="eclipselink.logging.level" value="SEVERE"/>
     </properties>
   </persistence-unit>
 </persistence>
