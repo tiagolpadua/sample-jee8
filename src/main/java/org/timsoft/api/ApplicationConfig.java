@@ -1,35 +1,33 @@
 package org.timsoft.api;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
-import java.util.Set;
+import io.swagger.v3.oas.annotations.servers.Server;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-import org.timsoft.api.book.BookResource;
-import org.timsoft.api.error.BookNotFoundExceptionMapper;
-import org.timsoft.api.error.ConstraintViolationExceptionMapper;
-import org.timsoft.api.error.DuplicateIsbnExceptionMapper;
-import org.timsoft.api.error.FallbackExceptionMapper;
-import org.timsoft.api.error.PersistenceExceptionMapper;
-import org.timsoft.api.test.TestResource;
 
-@OpenAPIDefinition(info = @Info(title = "sample-jee8 API", version = "0.0.1-SNAPSHOT"))
+/**
+ * Per the JAX-RS spec (2.3.2): when an {@code Application} subclass with {@code @ApplicationPath}
+ * does NOT override {@code getClasses()}/{@code getSingletons()} (both default to empty), the
+ * container MUST scan the deployment (WEB-INF/classes + WEB-INF/lib) for {@code @Path} /
+ * {@code @Provider} classes and register them itself. That covers every resource and exception
+ * mapper in this WAR, plus swagger-jaxrs2's own {@code OpenApiResource}.
+ *
+ * <p>This is unrelated to - and much narrower than - the classpath scan that crashed WebLogic (see
+ * openapi-configuration.yaml): that one was Swagger's own ClassGraph scanner walking the whole
+ * application-server classpath. This is the container's own deployment-scoped discovery.
+ *
+ * <p>If a resource or mapper isn't picked up on WebLogic, override {@code getClasses()} again and
+ * list it explicitly - don't fight the container for a class it insists on missing.
+ *
+ * <p>{@code servers} pins the OpenAPI doc's base URL to the context root. Without it, tools that
+ * build requests from the spec (Swagger UI's "Try it out", curl generators, ...) assume the app is
+ * deployed at the server root and call {@code http://host:port/api/...} instead of {@code
+ * http://host:port/sample-jee8/api/...}. Keep this in sync with the context root set in {@code
+ * WEB-INF/weblogic.xml} (see the "Artifact name vs. context root" note in CLAUDE.md).
+ */
+@OpenAPIDefinition(
+    info = @Info(title = "sample-jee8 API", version = "0.0.1-SNAPSHOT"),
+    servers = @Server(url = "/sample-jee8"))
 @ApplicationPath("api")
-public class ApplicationConfig extends Application {
-
-  @Override
-  public Set<Class<?>> getClasses() {
-    return Set.of(
-        TestResource.class,
-        BookResource.class,
-        // serves GET /api/openapi.json and /api/openapi.yaml; scan is scoped by
-        // resourcePackages in src/main/resources/openapi-configuration.yaml
-        OpenApiResource.class,
-        BookNotFoundExceptionMapper.class,
-        DuplicateIsbnExceptionMapper.class,
-        ConstraintViolationExceptionMapper.class,
-        PersistenceExceptionMapper.class,
-        FallbackExceptionMapper.class);
-  }
-}
+public class ApplicationConfig extends Application {}

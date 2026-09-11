@@ -148,7 +148,7 @@
 						<exclude>org/timsoft/api/persistence/EntityManagerProducer.*</exclude>
 						<exclude>org/timsoft/api/persistence/TransactionalInterceptor.*</exclude>
 						<exclude>org/timsoft/api/persistence/Tx.*</exclude>
-						<exclude>org/timsoft/api/test/**</exclude>
+						<exclude>org/timsoft/api/ping/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

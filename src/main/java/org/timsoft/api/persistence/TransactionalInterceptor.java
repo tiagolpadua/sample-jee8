@@ -1,15 +1,23 @@
 package org.timsoft.api.persistence;
 
-@javax.interceptor.Interceptor
+import javax.annotation.Priority;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+@Interceptor
 @Tx
-@javax.annotation.Priority(javax.interceptor.Interceptor.Priority.APPLICATION)
+@Priority(Interceptor.Priority.APPLICATION)
 public class TransactionalInterceptor {
 
-  @javax.inject.Inject javax.persistence.EntityManager em;
+  @Inject EntityManager em;
 
-  @javax.interceptor.AroundInvoke
-  public Object runInTransaction(javax.interceptor.InvocationContext ctx) throws Exception {
-    javax.persistence.EntityTransaction tx = em.getTransaction();
+  @AroundInvoke
+  public Object runInTransaction(InvocationContext ctx) throws Exception {
+    EntityTransaction tx = em.getTransaction();
     boolean owner = !tx.isActive();
     if (owner) {
       tx.begin();

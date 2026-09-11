@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A small Java EE 8 (`javax:javaee-api` 8.0.1, `provided` scope) web app packaged as a WAR: a
 **REST CRUD for `Book`** backed by **JPA + an in-memory H2 database**, plus a trivial
-`TestResource` sanity check and an OpenAPI/Swagger UI. Target runtime is **Oracle WebLogic 14.1.2**.
+`PingResource` sanity check and an OpenAPI/Swagger UI. Target runtime is **Oracle WebLogic 14.1.2**.
 
 The code uses the pre-Jakarta `javax.*` namespace throughout (`javax.ws.rs.*`,
 `javax.enterprise.context.*`, `javax.persistence.*`) and the Java EE 8 XML descriptor namespace
@@ -32,7 +32,7 @@ The code uses the pre-Jakarta `javax.*` namespace throughout (`javax.ws.rs.*`,
 | Method | Path | Notes |
 |---|---|---|
 | `GET` | `/sample-jee8/` | static `index.html` |
-| `GET` | `/sample-jee8/api/test` | `TestResource` → `"Test OK"` |
+| `GET` | `/sample-jee8/api/ping` | `PingResource` → `"pong"` |
 | `GET` | `/sample-jee8/api/openapi.json` / `.yaml` | OpenAPI 3 doc (scan scoped — see below) |
 | `GET` | `/sample-jee8/api-docs.html` | Swagger UI |
 | `POST` | `/sample-jee8/api/books` | create → `201` + `Location`; `409` on duplicate ISBN |
@@ -54,17 +54,23 @@ Layers, all in `org.timsoft.api`:
 - `book.BookRepository` — `EntityManager` access; dynamic filter/paging via Criteria API.
 - `book.BookMapper` — entity ⇄ `BookRequest` / `BookPatchRequest` / `BookResponse` (manual).
 - `book.dto.*` — request/response DTOs (Lombok) + generic `PageResponse<T>`.
-- `error.*` — `ApiError` body + custom exceptions + 5 `ExceptionMapper`s (404/409/400/409/500),
-  registered explicitly in `ApplicationConfig.getClasses()`.
+- `error.*` — `ApiError` body + custom exceptions + 5 `ExceptionMapper`s (404/409/400/409/500).
 - `persistence.*` — `EntityManagerProducer` (`@Produces` an `@RequestScoped`, application-managed
   `EntityManager` from a `RESOURCE_LOCAL` unit) and `TransactionalInterceptor` bound by `@Tx`
   (self-enabled via `@Priority`, no `beans.xml` entry).
-- OpenAPI doc: the **stock** `io.swagger.v3.jaxrs2.integration.resources.OpenApiResource`,
-  registered in `ApplicationConfig.getClasses()` like any other resource — no custom code. Its
-  scan is scoped by `src/main/resources/openapi-configuration.yaml`
+- OpenAPI doc: the **stock** `io.swagger.v3.jaxrs2.integration.resources.OpenApiResource` — no
+  custom code. Its scan is scoped by `src/main/resources/openapi-configuration.yaml`
   (`resourcePackages: [org.timsoft.api]`), auto-discovered from the classpath the first time the
   resource runs. **Without `resourcePackages`, swagger-core's ClassGraph scanner walks the whole
   WebLogic classpath and runs the server out of heap** — this file is not optional.
+
+**`ApplicationConfig` registers nothing itself.** It has no `getClasses()`/`getSingletons()`
+override, which per JAX-RS 2.3.2 means the container scans this WAR's own
+`WEB-INF/classes`/`WEB-INF/lib` for `@Path`/`@Provider` classes and wires them up — that's every
+resource, every `ExceptionMapper`, and swagger-jaxrs2's `OpenApiResource`. This is the container's
+own deployment-scoped discovery, unrelated to (and far narrower than) the ClassGraph scan above.
+**Not yet confirmed against a live WebLogic deploy** — if a resource or mapper doesn't get picked
+up, override `getClasses()` again and list the missing one(s) explicitly.
 
 Other notes:
 

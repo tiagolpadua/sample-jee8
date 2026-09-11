@@ -1,30 +1,39 @@
 package org.timsoft.api.persistence;
 
-@javax.enterprise.context.ApplicationScoped
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Produces;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+@ApplicationScoped
 public class EntityManagerProducer {
 
-  private javax.persistence.EntityManagerFactory emf;
+  private EntityManagerFactory emf;
 
-  @javax.annotation.PostConstruct
+  @PostConstruct
   void startup() {
-    emf = javax.persistence.Persistence.createEntityManagerFactory("sampledbPU");
+    emf = Persistence.createEntityManagerFactory("sampledbPU");
   }
 
-  @javax.annotation.PreDestroy
+  @PreDestroy
   void shutdown() {
     if (emf != null && emf.isOpen()) {
       emf.close();
     }
   }
 
-  @javax.enterprise.inject.Produces
-  @javax.enterprise.context.RequestScoped
-  public javax.persistence.EntityManager createEntityManager() {
+  @Produces
+  @RequestScoped
+  public EntityManager createEntityManager() {
     return emf.createEntityManager();
   }
 
-  public void closeEntityManager(
-      @javax.enterprise.inject.Disposes javax.persistence.EntityManager em) {
+  public void closeEntityManager(@Disposes EntityManager em) {
     if (em.isOpen()) {
       em.close();
     }

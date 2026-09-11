@@ -4,7 +4,7 @@ Java EE 8 (`javax.*`) REST CRUD for `Book` — JAX-RS 2.1 + CDI 2.0 + JPA (Eclip
 in-memory H2 database, deployed on **Oracle WebLogic 14.1.2** / **JDK 21**.
 
 - http://localhost:7001/sample-jee8
-- http://localhost:7001/sample-jee8/api/test
+- http://localhost:7001/sample-jee8/api/ping
 - http://localhost:7001/sample-jee8/api/books
 - http://localhost:7001/sample-jee8/api-docs.html — Swagger UI
 - http://localhost:7001/sample-jee8/api/openapi.json / `.yaml`
@@ -54,7 +54,7 @@ Errors are JSON `ApiError`: `{ timestamp, status, error, message, path, details[
 book/        entity, repository, service, JAX-RS resource, mapper, DTOs
 error/       ApiError + custom exceptions + JAX-RS ExceptionMappers
 persistence/ EntityManager producer + @Tx interceptor (RESOURCE_LOCAL, app-managed)
-test/        TestResource sanity check
+ping/        PingResource sanity check
 
 openapi-configuration.yaml   scopes the Swagger scan to org.timsoft.api (see CLAUDE.md)
 ```

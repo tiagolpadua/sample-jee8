@@ -1,4 +1,4 @@
-package org.timsoft.api.test;
+package org.timsoft.api.ping;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,18 +10,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 // WebLogic
-// http://localhost:7001/sample-jee8/api/test
+// http://localhost:7001/sample-jee8/api/ping
 
 @RequestScoped
-@Path("test")
+@Path("ping")
 @Produces(MediaType.APPLICATION_JSON)
-@Tag(name = "test")
-public class TestResource {
+@Tag(name = "ping")
+public class PingResource {
   @GET
   @Operation(
       summary = "Deployment sanity check",
-      description = "Returns \"Test OK\" when the app is up.")
-  public Response test() {
-    return Response.ok("Test OK").build();
+      description = "Returns \"pong\" when the app is up.")
+  public Response ping() {
+    return Response.ok("pong").build();
   }
 }
