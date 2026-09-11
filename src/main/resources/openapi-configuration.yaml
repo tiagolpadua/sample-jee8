@@ -1,0 +1,9 @@
+# Auto-discovered by swagger-core from the classpath root (WEB-INF/classes) the first
+# time OpenApiResource builds its context - no bootstrap code needed.
+#
+# resourcePackages is the key setting: without it, swagger-core's ClassGraph scanner
+# walks the ENTIRE application-server classpath looking for @Path classes, which is what
+# ran WebLogic out of heap. Scoping it to our own package keeps the scan tiny.
+resourcePackages:
+  - org.timsoft.api
+prettyPrint: true

@@ -33,7 +33,7 @@ The code uses the pre-Jakarta `javax.*` namespace throughout (`javax.ws.rs.*`,
 |---|---|---|
 | `GET` | `/sample-jee8/` | static `index.html` |
 | `GET` | `/sample-jee8/api/test` | `TestResource` → `"Test OK"` |
-| `GET` | `/sample-jee8/api/openapi.json` / `.yaml` | OpenAPI 3 doc (no classpath scan — see below) |
+| `GET` | `/sample-jee8/api/openapi.json` / `.yaml` | OpenAPI 3 doc (scan scoped — see below) |
 | `GET` | `/sample-jee8/api-docs.html` | Swagger UI |
 | `POST` | `/sample-jee8/api/books` | create → `201` + `Location`; `409` on duplicate ISBN |
 | `GET` | `/sample-jee8/api/books` | paged list; query `title`, `author`, `genre`, `page`, `size`, `sort=field,asc\|desc` |
@@ -59,8 +59,12 @@ Layers, all in `org.timsoft.api`:
 - `persistence.*` — `EntityManagerProducer` (`@Produces` an `@RequestScoped`, application-managed
   `EntityManager` from a `RESOURCE_LOCAL` unit) and `TransactionalInterceptor` bound by `@Tx`
   (self-enabled via `@Priority`, no `beans.xml` entry).
-- `openapi.OpenApiResource` — builds the spec with `io.swagger…Reader` over the classes registered
-  in `Application`; **does not** use Swagger's ClassGraph scanner (that OOM-kills WebLogic).
+- OpenAPI doc: the **stock** `io.swagger.v3.jaxrs2.integration.resources.OpenApiResource`,
+  registered in `ApplicationConfig.getClasses()` like any other resource — no custom code. Its
+  scan is scoped by `src/main/resources/openapi-configuration.yaml`
+  (`resourcePackages: [org.timsoft.api]`), auto-discovered from the classpath the first time the
+  resource runs. **Without `resourcePackages`, swagger-core's ClassGraph scanner walks the whole
+  WebLogic classpath and runs the server out of heap** — this file is not optional.
 
 Other notes:
 
