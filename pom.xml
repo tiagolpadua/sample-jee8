@@ -31,6 +31,8 @@
 		<maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
 		<!-- last javax.ws.rs line of Jersey; test-only, to get a JAX-RS RuntimeDelegate -->
 		<jersey.version>2.46</jersey.version>
+
+		<slf4j.version>2.0.19</slf4j.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +71,19 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
+		</dependency>
+
+		<!-- SLF4J facade (used via Lombok @Slf4j) + a JUL binding, so log calls still land
+		     in WebLogic's server log exactly like the java.util.logging calls they replace. -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<!-- ===== test only ===== -->

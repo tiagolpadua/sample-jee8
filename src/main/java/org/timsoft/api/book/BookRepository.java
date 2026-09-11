@@ -1,5 +1,6 @@
 package org.timsoft.api.book;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
@@ -81,7 +82,7 @@ public class BookRepository {
   }
 
   private Predicate[] toPredicates(CriteriaBuilder cb, Root<Book> root, BookFilter filter) {
-    List<Predicate> predicates = new java.util.ArrayList<>();
+    List<Predicate> predicates = new ArrayList<>();
     if (filter != null) {
       if (filter.title() != null && !filter.title().isBlank()) {
         predicates.add(cb.like(cb.lower(root.get("title")), like(filter.title())));

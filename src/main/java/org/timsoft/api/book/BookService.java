@@ -2,7 +2,6 @@ package org.timsoft.api.book;
 
 import java.time.Year;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
@@ -54,7 +53,7 @@ public class BookService {
             .search(filter, safePage, safeSize, parsedSort.field(), parsedSort.ascending())
             .stream()
             .map(mapper::toResponse)
-            .collect(Collectors.toList());
+            .toList();
 
     return PageResponse.of(items, safePage, safeSize, total);
   }

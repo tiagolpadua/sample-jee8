@@ -1,7 +1,5 @@
 package org.timsoft.api.error;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.PersistenceException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -9,17 +7,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Provider
 public class PersistenceExceptionMapper implements ExceptionMapper<PersistenceException> {
-
-  private static final Logger LOGGER = Logger.getLogger(PersistenceExceptionMapper.class.getName());
 
   @Context private UriInfo uriInfo;
 
   @Override
   public Response toResponse(PersistenceException ex) {
-    LOGGER.log(Level.WARNING, "Persistence error while handling request", ex);
+    log.warn("Persistence error while handling request", ex);
     ApiError entity =
         ApiError.of(Response.Status.CONFLICT, "Data integrity violation", path(), null);
     return Response.status(Response.Status.CONFLICT)

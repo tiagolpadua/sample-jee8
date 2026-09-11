@@ -5,12 +5,14 @@
 
 	<wls:context-root>sample-jee8</wls:context-root>
 
-	<!-- Swagger pulls newer Jackson / SnakeYAML than WebLogic bundles; let the
-	     WAR's copies win inside this app's classloader. -->
+	<!-- Swagger pulls newer Jackson / SnakeYAML than WebLogic bundles, and the app
+	     brings its own SLF4J + JUL binding; let the WAR's copies win inside this
+	     app's classloader instead of whatever WebLogic exposes on its own. -->
 	<wls:container-descriptor>
 		<wls:prefer-application-packages>
 			<wls:package-name>com.fasterxml.jackson.*</wls:package-name>
 			<wls:package-name>org.yaml.snakeyaml.*</wls:package-name>
+			<wls:package-name>org.slf4j.*</wls:package-name>
 		</wls:prefer-application-packages>
 	</wls:container-descriptor>
 </wls:weblogic-web-app>
